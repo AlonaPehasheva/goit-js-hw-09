@@ -11,31 +11,33 @@ let formData = {
 
 const form = document.querySelector('.feedback-form');
 const localStorageKey = 'feedback-form-state';
-
-form.addEventListener('input', e => {
-  const email = e.currentTarget.elements.email.value;
-  const message = e.currentTarget.elements.message.value;
-  formData.email = email;
-  formData.message = message;
-  saveToLS(localStorageKey, formData);
-});
+const saveData = localStorage.getItem('feedback-form-state');
 
 function saveToLS(key, value) {
   const jsonData = JSON.stringify(value);
   localStorage.setItem(key, jsonData);
 }
 
-const saveData = localStorage.getItem('feedback-form-state');
+form.addEventListener('input', e => {
+  const email = e.currentTarget.elements.email.value.trim();
+  const message = e.currentTarget.elements.message.value.trim();
+  formData.email = email;
+  formData.message = message;
+  saveToLS(localStorageKey, formData);
+});
+
 if (saveData) {
   try {
     const formDataSave = JSON.parse(saveData);
     form.elements.email.value = formDataSave.email;
     form.elements.message.value = formDataSave.message;
+    formData.email = formDataSave.email;
+    formData.message = formDataSave.message;
   } catch (error) {
     console.log(error.name);
   }
 } else {
-  formData = {};
+  formData = { email: '', message: '' };
 }
 
 // Перед відправленням форми переконайся, що обидва поля форми заповнені. Якщо будь-яке з полів (властивостей об’єкта formData) порожнє, показуй сповіщення з текстом «Fill please all fields». Якщо всі поля заповнені, виведи у консоль об’єкт formData з актуальними значеннями, очисти локальне сховище, об’єкт formData і поля форми.
@@ -44,6 +46,7 @@ form.addEventListener('submit', evt => {
   evt.preventDefault();
   if (formData.email === '' || formData.message === '') {
     alert('Fill please all fields');
+    return;
   }
   console.log({ ...formData });
   localStorage.removeItem('feedback-form-state');
